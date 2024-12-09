@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 
-public class SpaceGame extends Game {
+public class AdventureGame extends Game {
 
     private SpriteBatch batch;
     private ShapeRenderer renderer;

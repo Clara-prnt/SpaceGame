@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class MenuScreen extends ScreenAdapter {
 
-    private final SpaceGame game;
+    private final AdventureGame game;
 
     private Viewport viewport;
     private Stage stage;
@@ -25,7 +25,7 @@ public class MenuScreen extends ScreenAdapter {
     private Skin skin;
     private Texture background;
 
-    public MenuScreen(SpaceGame game) {
+    public MenuScreen(AdventureGame game) {
         this.game = game;
     }
 
@@ -72,7 +72,7 @@ public class MenuScreen extends ScreenAdapter {
 
         table.setBackground(new TextureRegionDrawable(background));
 
-        TextButton playButton = new TextButton("Play", skin);
+        TextButton playButton = new TextButton("Play", skin, "maroon");
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -80,7 +80,7 @@ public class MenuScreen extends ScreenAdapter {
             }
         });
 
-        TextButton quitButton = new TextButton("Quit", skin);
+        TextButton quitButton = new TextButton("Quit", skin, "maroon");
         quitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -105,6 +105,16 @@ public class MenuScreen extends ScreenAdapter {
         table.setFillParent(true);
         table.pack();
 
+        /*// Create a window and add the table to it
+        Window window = new Window("Menu", skin, "peach");
+        window.add(table).expand().fill();
+        window.pack();
+        window.setPosition(
+            (Gdx.graphics.getWidth() - window.getWidth()) / 2,
+            (Gdx.graphics.getHeight() - window.getHeight()) / 2
+        );
+
+        return window;*/
         return table;
     }
 }

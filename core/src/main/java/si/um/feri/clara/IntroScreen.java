@@ -14,12 +14,13 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class IntroScreen extends ScreenAdapter {
 
-    public static final float INTRO_DURATION_IN_SEC = 3f;   // duration of the (intro) animation
+    public static final float INTRO_DURATION_IN_SEC = 4f;   // duration of the (intro) animation
 
-    private final SpaceGame game;
+    private final AdventureGame game;
 
-    private Texture keyTexture;
-    private Texture keyholeTexture;
+    private Texture carrotTexture;
+    private Texture bunnyTexture;
+    private Texture backgroundTexture;
 
     private Viewport viewport;
 
@@ -27,7 +28,7 @@ public class IntroScreen extends ScreenAdapter {
 
     private Stage stage;
 
-    public IntroScreen(SpaceGame game) {
+    public IntroScreen(AdventureGame game) {
         this.game = game;
     }
 
@@ -36,11 +37,48 @@ public class IntroScreen extends ScreenAdapter {
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         stage = new Stage(viewport, game.getBatch());
 
-        keyTexture = new Texture("assets/intro/key.png");
-        keyholeTexture = new Texture("assets/intro/keyhole.png");
+        carrotTexture = new Texture("assets/carrot.png");
+        bunnyTexture = new Texture("assets/down_player.png");
+        backgroundTexture = new Texture("assets/intro/background.png");
 
-        stage.addActor(createKeyhole());
-        stage.addActor(createAnimation());
+        stage.addActor(createBunnyAnimation());
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    private Actor createBunnyAnimation() {
+        Image bunny = new Image(bunnyTexture);
+        bunny.setPosition(-bunny.getWidth(), 120 + bunny.getHeight() / 2f);
+
+        float centerX = viewport.getWorldWidth() / 2f - bunny.getWidth() / 2f;
+        float floorY = 120 + bunny.getHeight() / 2f;
+
+        bunny.addAction(
+            Actions.sequence(
+                Actions.run(() -> stage.addActor(createCarrotAnimation())), // Add carrot animation
+                Actions.moveTo(centerX - 50, floorY, 2.0f), // Bunny hops to near the center
+                Actions.delay(0.5f), // Time before eating the carrot
+                Actions.moveTo(centerX, floorY, 0.5f), // Bunny hops to the right
+                Actions.delay(1.0f), // Time eating the carrot
+                Actions.removeActor() // Remove bunny
+            )
+        );
+
+        return bunny;
+    }
+
+    private Actor createCarrotAnimation() {
+        Image carrot = new Image(carrotTexture);
+        carrot.setPosition(viewport.getWorldWidth() / 2f - carrot.getWidth() / 2f, 120 + carrot.getHeight() / 2f);
+
+        carrot.addAction(
+            Actions.sequence(
+                Actions.delay(3.0f), // Wait for bunny to hop near the center
+                Actions.scaleTo(0, 0, 0.8f), // Carrot "disappears" as bunny eats it
+                Actions.removeActor() // Remove carrot
+            )
+        );
+
+        return carrot;
     }
 
     @Override
@@ -59,6 +97,10 @@ public class IntroScreen extends ScreenAdapter {
             game.setScreen(new MenuScreen(game));
         }
 
+        game.getBatch().begin();
+        game.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.getBatch().end();
+
         stage.act(delta);
         stage.draw();
     }
@@ -71,38 +113,8 @@ public class IntroScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         stage.dispose();
-    }
-
-    private Actor createKeyhole() {
-        Image keyhole = new Image(keyholeTexture);
-        // position the image to the center of the window
-        keyhole.setPosition(viewport.getWorldWidth() / 2f - keyhole.getWidth() / 2f,
-            viewport.getWorldHeight() / 2f - keyhole.getHeight() / 2f);
-        return keyhole;
-    }
-
-    private Actor createAnimation() {
-        Image key = new Image(keyTexture);
-
-        // set positions x, y to center the image to the center of the window
-        float posX = (viewport.getWorldWidth() / 2f) - key.getWidth() / 2f;
-        float posY = (viewport.getWorldHeight() / 2f) - key.getHeight() / 2f;
-
-        key.setOrigin(Align.center);
-        key.addAction(
-            /* animationDuration = Actions.sequence + Actions.rotateBy + Actions.scaleTo
-                                 = 1.5 + 1 + 0.5 = 3 sec */
-            Actions.sequence(
-                Actions.parallel(
-                    Actions.rotateBy(1080, 1.5f),   // rotate the image three times
-                    Actions.moveTo(posX, posY, 1.5f)   // // move image to the center of the window
-                ),
-                Actions.rotateBy(-360, 1),  // rotate the image for 360 degrees to the left side
-                Actions.scaleTo(0, 0, 0.5f),    // "minimize"/"hide" image
-                Actions.removeActor()   // // remove image
-            )
-        );
-
-        return key;
+        carrotTexture.dispose();
+        bunnyTexture.dispose();
+        backgroundTexture.dispose();
     }
 }

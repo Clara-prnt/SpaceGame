@@ -18,7 +18,7 @@ import java.util.Random;
 
 public class GameScreen extends ScreenAdapter {
 
-    private final SpaceGame game;
+    private final AdventureGame game;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
 
@@ -58,7 +58,7 @@ public class GameScreen extends ScreenAdapter {
     private static final float BAR_PADDING = 10f;
     private static final float PADDING = 20f;
 
-    public GameScreen(SpaceGame game) {
+    public GameScreen(AdventureGame game) {
         this.game = game;
         this.batch = game.getBatch();
         this.shapeRenderer = game.getRenderer();
@@ -67,9 +67,9 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         // Initialize textures, sounds, and other resources
-        characterImg = new Texture("assets/big_down_player.png");
-        villainImg = new Texture("assets/big_villain.png");
-        carrotImg = new Texture("assets/big_carrot.png");
+        characterImg = new Texture("assets/down_player.png");
+        villainImg = new Texture("assets/villain.png");
+        carrotImg = new Texture("assets/carrot.png");
         goldenCarrotImg = new Texture("assets/golden_carrot.png");
         eggImg = new Texture("assets/egg.png");
         backgroundImg = new Texture("assets/background.jpg");
@@ -144,7 +144,7 @@ public class GameScreen extends ScreenAdapter {
 
     private void handleInput(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
+            game.setScreen(new MenuScreen(game));
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && isGameOver) {
             createCharacter();
@@ -157,7 +157,7 @@ public class GameScreen extends ScreenAdapter {
 
         if (currentHealth > 0f) {
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)){
-                characterImg = new Texture("assets/big_right_player.png");
+                characterImg = new Texture("assets/right_player.png");
                 player.x += PLAYER_SPEED * delta;
                 if(player.x > Gdx.graphics.getWidth() - player.getWidth() - PADDING) {
                     player.x = Gdx.graphics.getWidth() - player.getWidth() - PADDING;
@@ -165,7 +165,7 @@ public class GameScreen extends ScreenAdapter {
                 throwingDirection = "right";
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
-                characterImg = new Texture("assets/big_left_player.png");
+                characterImg = new Texture("assets/left_player.png");
                 player.x -= PLAYER_SPEED * delta;
                 if(player.x < player.getWidth()) {
                     player.x = player.getWidth();
@@ -173,7 +173,7 @@ public class GameScreen extends ScreenAdapter {
                 throwingDirection = "left";
             }
             if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
-                characterImg = new Texture("assets/big_up_player.png");
+                characterImg = new Texture("assets/up_player.png");
                 player.y += PLAYER_SPEED * delta;
                 if(player.y > Gdx.graphics.getHeight() - player.getHeight() - PADDING) {
                     player.y = Gdx.graphics.getHeight() - player.getHeight() - PADDING;
@@ -181,7 +181,7 @@ public class GameScreen extends ScreenAdapter {
                 throwingDirection = "up";
             }
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
-                characterImg = new Texture("assets/big_down_player.png");
+                characterImg = new Texture("assets/down_player.png");
                 player.y -= PLAYER_SPEED * delta;
                 if(player.y < player.getHeight()) {
                     player.y = player.getHeight();
