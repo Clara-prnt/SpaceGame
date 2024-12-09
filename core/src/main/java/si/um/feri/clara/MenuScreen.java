@@ -2,9 +2,9 @@ package si.um.feri.clara;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -13,57 +13,39 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 
 public class MenuScreen extends ScreenAdapter {
-
     private final AdventureGame game;
-
-    private Viewport viewport;
+    private final AssetManager assetManager;
     private Stage stage;
-
     private Skin skin;
     private Texture background;
 
     public MenuScreen(AdventureGame game) {
         this.game = game;
+        this.assetManager = game.getAssetManager();
     }
 
     @Override
     public void show() {
-        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        stage = new Stage(viewport, game.getBatch());
+        stage = new Stage(new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()), game.getBatch());
+        skin = assetManager.get("assets/skin/uiskin.json", Skin.class);
+        background = assetManager.get("assets/background.jpg", Texture.class);
 
-        skin = new Skin(Gdx.files.internal("assets/skin/uiskin.json"));
-        background = new Texture("assets/background.jpg");
+        Gdx.app.log("MenuScreen", "Background: " + (background == null ? "NULL" : "Loaded"));
+        Gdx.app.log("MenuScreen", "Skin: " + (skin == null ? "NULL" : "Loaded"));
+
 
         stage.addActor(createUi());
         Gdx.input.setInputProcessor(stage);
     }
 
     @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height, true);
-    }
-
-    @Override
     public void render(float delta) {
         ScreenUtils.clear(0f, 0f, 0f, 0f);
-
         stage.act(delta);
         stage.draw();
-    }
-
-    @Override
-    public void hide() {
-        dispose();
-    }
-
-    @Override
-    public void dispose() {
-        stage.dispose();
-        skin.dispose();
-        background.dispose();
     }
 
     private Actor createUi() {
@@ -89,11 +71,7 @@ public class MenuScreen extends ScreenAdapter {
         });
 
         Table buttonTable = new Table();
-        buttonTable.defaults()
-            .width(400)
-            .height(100)
-            .padLeft(30)
-            .padRight(30);
+        buttonTable.defaults().width(400).height(100).padLeft(30).padRight(30);
 
         buttonTable.add(playButton).padBottom(15).fillX().row();
         buttonTable.add(quitButton).fillX();
@@ -106,5 +84,10 @@ public class MenuScreen extends ScreenAdapter {
         table.pack();
 
         return table;
+    }
+
+    @Override
+    public void dispose() {
+        stage.dispose();
     }
 }

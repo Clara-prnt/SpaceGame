@@ -3,6 +3,7 @@ package si.um.feri.clara;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -19,6 +20,7 @@ import java.util.Random;
 public class GameScreen extends ScreenAdapter {
 
     private final AdventureGame game;
+    private final AssetManager assetManager;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
 
@@ -60,23 +62,23 @@ public class GameScreen extends ScreenAdapter {
 
     public GameScreen(AdventureGame game) {
         this.game = game;
+        this.assetManager = game.getAssetManager();
         this.batch = game.getBatch();
         this.shapeRenderer = game.getRenderer();
     }
 
     @Override
     public void show() {
-        // Initialize textures, sounds, and other resources
-        characterImg = new Texture("assets/down_player.png");
-        villainImg = new Texture("assets/villain.png");
-        carrotImg = new Texture("assets/carrot.png");
-        goldenCarrotImg = new Texture("assets/golden_carrot.png");
-        eggImg = new Texture("assets/egg.png");
-        backgroundImg = new Texture("assets/background.jpg");
+        characterImg = assetManager.get("assets/down_player.png", Texture.class);
+        villainImg = assetManager.get("assets/villain.png", Texture.class);
+        carrotImg = assetManager.get("assets/carrot.png", Texture.class);
+        goldenCarrotImg = assetManager.get("assets/golden_carrot.png", Texture.class);
+        eggImg = assetManager.get("assets/egg.png", Texture.class);
+        backgroundImg = assetManager.get("assets/background.jpg", Texture.class);
 
-        rewardSound = Gdx.audio.newSound(Gdx.files.internal("assets/reward.wav"));
-        damageSound = Gdx.audio.newSound(Gdx.files.internal("assets/damage.wav"));
-        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("assets/game-over.wav"));
+        rewardSound = assetManager.get("assets/reward.wav", Sound.class);
+        damageSound = assetManager.get("assets/damage.wav", Sound.class);
+        gameOverSound = assetManager.get("assets/game-over.wav", Sound.class);
 
         font = new BitmapFont();
         scoreBoard = "Score: " + score;
@@ -157,7 +159,7 @@ public class GameScreen extends ScreenAdapter {
 
         if (currentHealth > 0f) {
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)){
-                characterImg = new Texture("assets/right_player.png");
+                characterImg = assetManager.get("assets/right_player.png", Texture.class);
                 player.x += PLAYER_SPEED * delta;
                 if(player.x > Gdx.graphics.getWidth() - player.getWidth() - PADDING) {
                     player.x = Gdx.graphics.getWidth() - player.getWidth() - PADDING;
@@ -165,7 +167,7 @@ public class GameScreen extends ScreenAdapter {
                 throwingDirection = "right";
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
-                characterImg = new Texture("assets/left_player.png");
+                characterImg = assetManager.get("assets/left_player.png", Texture.class);
                 player.x -= PLAYER_SPEED * delta;
                 if(player.x < player.getWidth()) {
                     player.x = player.getWidth();
@@ -173,7 +175,7 @@ public class GameScreen extends ScreenAdapter {
                 throwingDirection = "left";
             }
             if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
-                characterImg = new Texture("assets/up_player.png");
+                characterImg = assetManager.get("assets/up_player.png", Texture.class);
                 player.y += PLAYER_SPEED * delta;
                 if(player.y > Gdx.graphics.getHeight() - player.getHeight() - PADDING) {
                     player.y = Gdx.graphics.getHeight() - player.getHeight() - PADDING;
@@ -181,7 +183,7 @@ public class GameScreen extends ScreenAdapter {
                 throwingDirection = "up";
             }
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
-                characterImg = new Texture("assets/down_player.png");
+                characterImg = assetManager.get("assets/down_player.png", Texture.class);
                 player.y -= PLAYER_SPEED * delta;
                 if(player.y < player.getHeight()) {
                     player.y = player.getHeight();
@@ -342,19 +344,6 @@ public class GameScreen extends ScreenAdapter {
     private void gameOver() {
         isGameOver = true;
         gameOverSound.play();
-    }
-
-    @Override
-    public void dispose() {
-        characterImg.dispose();
-        villainImg.dispose();
-        carrotImg.dispose();
-        goldenCarrotImg.dispose();
-        eggImg.dispose();
-        backgroundImg.dispose();
-        rewardSound.dispose();
-        damageSound.dispose();
-        font.dispose();
     }
 
     @Override
