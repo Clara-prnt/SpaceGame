@@ -20,6 +20,7 @@ import java.util.Random;
 
 public class GameScreen extends ScreenAdapter {
 
+    //what is that ?
     private final SpaceGame game;
 
     public GameScreen(SpaceGame game) {
