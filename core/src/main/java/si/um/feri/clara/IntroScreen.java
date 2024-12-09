@@ -80,7 +80,7 @@ public class IntroScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0f, 0f, 0f, 0f);
+        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
 
         duration += delta;
 
