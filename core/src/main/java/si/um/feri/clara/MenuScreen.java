@@ -105,16 +105,6 @@ public class MenuScreen extends ScreenAdapter {
         table.setFillParent(true);
         table.pack();
 
-        /*// Create a window and add the table to it
-        Window window = new Window("Menu", skin, "peach");
-        window.add(table).expand().fill();
-        window.pack();
-        window.setPosition(
-            (Gdx.graphics.getWidth() - window.getWidth()) / 2,
-            (Gdx.graphics.getHeight() - window.getHeight()) / 2
-        );
-
-        return window;*/
         return table;
     }
 }
