@@ -1,7 +1,6 @@
 package si.um.feri.clara;
 
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
@@ -17,18 +16,11 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import java.util.Iterator;
 import java.util.Random;
 
-
 public class GameScreen extends ScreenAdapter {
 
-    //what is that ?
     private final SpaceGame game;
-
-    public GameScreen(SpaceGame game) {
-        this.game = game;
-    }
-
     private SpriteBatch batch;
-    ShapeRenderer shapeRenderer;
+    private ShapeRenderer shapeRenderer;
 
     private Texture characterImg;
     private Texture villainImg;
@@ -66,93 +58,70 @@ public class GameScreen extends ScreenAdapter {
     private static final float BAR_PADDING = 10f;
     private static final float PADDING = 20f;
 
-    /**
-     * Called when the Game is first created.
-     * Initializes the game objects and sounds and initializes the game.
-     */
+    public GameScreen(SpaceGame game) {
+        this.game = game;
+        this.batch = game.getBatch();
+        this.shapeRenderer = game.getRenderer();
+    }
+
     @Override
     public void show() {
-        batch = new SpriteBatch();
-        shapeRenderer = new ShapeRenderer();
+        // Initialize textures, sounds, and other resources
+        characterImg = new Texture("assets/big_down_player.png");
+        villainImg = new Texture("assets/big_villain.png");
+        carrotImg = new Texture("assets/big_carrot.png");
+        goldenCarrotImg = new Texture("assets/golden_carrot.png");
+        eggImg = new Texture("assets/egg.png");
+        backgroundImg = new Texture("assets/background.jpg");
 
-        // Creating the 'character' and 'objects' images
-        characterImg = new Texture("./assets/big_down_player.png");
-        villainImg = new Texture("./assets/big_villain.png");
-        carrotImg = new Texture("./assets/big_carrot.png");
-        goldenCarrotImg = new Texture("./assets/golden_carrot.png");
-        eggImg = new Texture("./assets/egg.png");
-        backgroundImg = new Texture("./assets/background.jpg");
-
-        rewardSound = Gdx.audio.newSound(Gdx.files.internal("./assets/reward.wav"));
-        damageSound = Gdx.audio.newSound(Gdx.files.internal("./assets/damage.wav"));
-        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("./assets/game-over.wav"));
+        rewardSound = Gdx.audio.newSound(Gdx.files.internal("assets/reward.wav"));
+        damageSound = Gdx.audio.newSound(Gdx.files.internal("assets/damage.wav"));
+        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("assets/game-over.wav"));
 
         font = new BitmapFont();
         scoreBoard = "Score: " + score;
 
         entities = new Array<>();
         createCharacter();
-        render();
     }
 
-    /**
-     * Creates the character object.
-     */
-    public void createCharacter() {
-        characterImg = new Texture("./assets/big_down_player.png");
+    private void createCharacter() {
         player = new Rectangle(Gdx.graphics.getWidth() / 2f - characterImg.getWidth() / 2f,
             PADDING, characterImg.getWidth(), characterImg.getHeight());
-
     }
 
-    /**
-     * Create a carrot object and adds it to the entities array.
-     */
-    public void spawnCarrot() {
+    private void spawnCarrot() {
         Rectangle carrot = new Rectangle(MathUtils.random(PADDING, Gdx.graphics.getWidth() - carrotImg.getWidth() - PADDING),
             MathUtils.random(PADDING, Gdx.graphics.getHeight() - carrotImg.getHeight() - PADDING), carrotImg.getWidth(), carrotImg.getHeight());
         entities.add(new Entity(carrot, Entity.Type.CARROT));
     }
 
-    /**
-     * Create a golden carrot (booster) object and adds it to the entities array.
-     */
-    public void spawnGoldenCarrot() {
+    private void spawnGoldenCarrot() {
         Rectangle goldenCarrot = new Rectangle(MathUtils.random(PADDING, Gdx.graphics.getWidth() - carrotImg.getWidth() - PADDING),
             MathUtils.random(PADDING, Gdx.graphics.getHeight() - carrotImg.getHeight() - PADDING), carrotImg.getWidth(), carrotImg.getHeight());
         entities.add(new Entity(goldenCarrot, Entity.Type.GOLDEN_CARROT));
     }
 
-    /**
-     * Create a villain object and adds it to the entities array.
-     */
-    public void spawnVillain() {
+    private void spawnVillain() {
         Rectangle villain = new Rectangle(MathUtils.random(PADDING, Gdx.graphics.getWidth() - villainImg.getWidth() - PADDING),
             Gdx.graphics.getHeight(), villainImg.getWidth(), villainImg.getHeight());
         entities.add(new Entity(villain, Entity.Type.VILLAIN));
     }
 
-    /**
-     * Create an egg object and adds it to the entities array.
-     * The egg is thrown in the direction the player is facing.
-     */
-    public void spawnEgg() {
+    private void spawnEgg() {
         Rectangle egg = new Rectangle(player.x + player.width / 2 - (float) eggImg.getWidth() / 2,
             player.y + player.height / 2 - (float) eggImg.getHeight() / 2, eggImg.getWidth(), eggImg.getHeight());
         entities.add(new Entity(egg, Entity.Type.EGG, throwingDirection));
     }
 
-    /**
-     * Called when the screen should render itself.
-     * Handles input, updates the game state, and renders the game objects.
-     */
-    public void render() {
+    @Override
+    public void render(float delta) {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
 
-        handleInput(Gdx.graphics.getDeltaTime());
+        handleInput(delta);
 
         if (!isGameOver) {
-            update(Gdx.graphics.getDeltaTime());
+            update(delta);
         }
 
         batch.begin();
@@ -173,14 +142,6 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
-    /**
-     * Handles the input from the user.
-     * The player can move the character using the arrow keys or WASD keys.
-     * The player can throw an egg using the left mouse button.
-     * The player can restart the game by pressing the space key when GAME OVER.
-     * The player can exit the game by pressing the escape key.
-     * @param delta The time in seconds since the last render (1 frame).
-     */
     private void handleInput(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
@@ -196,7 +157,7 @@ public class GameScreen extends ScreenAdapter {
 
         if (currentHealth > 0f) {
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)){
-                characterImg = new Texture("./assets/big_right_player.png");
+                characterImg = new Texture("assets/big_right_player.png");
                 player.x += PLAYER_SPEED * delta;
                 if(player.x > Gdx.graphics.getWidth() - player.getWidth() - PADDING) {
                     player.x = Gdx.graphics.getWidth() - player.getWidth() - PADDING;
@@ -204,7 +165,7 @@ public class GameScreen extends ScreenAdapter {
                 throwingDirection = "right";
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
-                characterImg = new Texture("./assets/big_left_player.png");
+                characterImg = new Texture("assets/big_left_player.png");
                 player.x -= PLAYER_SPEED * delta;
                 if(player.x < player.getWidth()) {
                     player.x = player.getWidth();
@@ -212,7 +173,7 @@ public class GameScreen extends ScreenAdapter {
                 throwingDirection = "left";
             }
             if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
-                characterImg = new Texture("./assets/big_up_player.png");
+                characterImg = new Texture("assets/big_up_player.png");
                 player.y += PLAYER_SPEED * delta;
                 if(player.y > Gdx.graphics.getHeight() - player.getHeight() - PADDING) {
                     player.y = Gdx.graphics.getHeight() - player.getHeight() - PADDING;
@@ -220,7 +181,7 @@ public class GameScreen extends ScreenAdapter {
                 throwingDirection = "up";
             }
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
-                characterImg = new Texture("./assets/big_down_player.png");
+                characterImg = new Texture("assets/big_down_player.png");
                 player.y -= PLAYER_SPEED * delta;
                 if(player.y < player.getHeight()) {
                     player.y = player.getHeight();
@@ -234,15 +195,6 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
-    /**
-     * Updates the game state.
-     * Spawns villains and carrots at regular intervals.
-     * Updates the position of the entities.
-     * Checks for collisions between entities.
-     * Updates the score and health.
-     * Ends the game if the health reaches 0.
-     * @param delta The time in seconds since the last render (1 frame).
-     */
     private void update(float delta) {
         Random rand = new Random();
         int roll = rand.nextInt(10);
@@ -319,7 +271,6 @@ public class GameScreen extends ScreenAdapter {
                             break;
                     }
 
-                    // Check if the egg hits a villain + cannot use iterator inside another iterator
                     for (int i = 0; i < entities.size; i++) {
                         Entity otherEntity = entities.get(i);
                         if (otherEntity.type == Entity.Type.VILLAIN && entity.rectangle.overlaps(otherEntity.rectangle)) {
@@ -340,17 +291,10 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
-    /**
-     * Draws the background image.
-     */
     private void drawBackground(){
         batch.draw(backgroundImg, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
-    /**
-     * Draws the entities on the screen.
-     * All entities are seen as rectangles.
-     */
     private void drawEntities() {
         for (Entity entity : entities) {
             switch (entity.type) {
@@ -370,29 +314,16 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
-
-    /**
-     * Draws the player character on the screen.
-     */
     private void drawPlayer() {
         batch.draw(characterImg, player.x, player.y, player.width, player.height);
     }
 
-    /**
-     * Draws the score board on the screen.
-     * Initializes the font and setting the color as black.
-     */
-    public void drawScoreBoard() {
+    private void drawScoreBoard() {
         font.getData().setScale(2);
         font.setColor(0, 0, 0, 1);
         font.draw(batch, scoreBoard, 10, Gdx.graphics.getHeight() - 10);
     }
 
-    /**
-     * Draws the health bar on the screen.
-     * The health bar is a rectangle.
-     * When the health lowers, the green part of the bar decreases, letting the red part appears.
-     */
     private void drawHealthBar() {
         float healthPercentage = currentHealth / 100f;
         shapeRenderer.setColor(1, 0, 0, 1); // Red
@@ -401,10 +332,6 @@ public class GameScreen extends ScreenAdapter {
         shapeRenderer.rect(BAR_PADDING, Gdx.graphics.getHeight() - BAR_PADDING - BAR_HEIGHT - font.getLineHeight(), BAR_WIDTH * healthPercentage, BAR_HEIGHT);
     }
 
-    /**
-     * Draws the 'game over' message on the screen.
-     * Initializes the font and setting the color as red.
-     */
     private void drawGameOver() {
         font.getData().setScale(2);
         font.setColor(1, 0, 0, 1);
@@ -412,22 +339,13 @@ public class GameScreen extends ScreenAdapter {
             Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f);
     }
 
-    /**
-     * Called when the player loses all health.
-     * Plays the game over sound and sets the game state to 'game over'.
-     */
-    public void gameOver() {
+    private void gameOver() {
         isGameOver = true;
         gameOverSound.play();
     }
 
-    /**
-     * Called when the Game is destroyed.
-     * Disposes of the game objects and sounds.
-     */
     @Override
     public void dispose() {
-        batch.dispose();
         characterImg.dispose();
         villainImg.dispose();
         carrotImg.dispose();
@@ -437,7 +355,6 @@ public class GameScreen extends ScreenAdapter {
         rewardSound.dispose();
         damageSound.dispose();
         font.dispose();
-        shapeRenderer.dispose();
     }
 
     @Override
